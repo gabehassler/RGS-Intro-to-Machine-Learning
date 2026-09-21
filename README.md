@@ -32,12 +32,18 @@ If you do not already have one, set up an account on [github.com](https://github
 GitHub is a place for storing, sharing, and distributing code.
 While RAND maintains an internal GitLab code repository at code.rand.org, this is only available inside the RAND network.
 
-### 3. Install an Integrated Development Environment (IDE)
+### 3. Install Git
+
+Git is the version control tool that GitHub is built on; you'll need it locally to clone repositories and submit homework.
+- [Install Git on Windows](https://git-scm.com/install/windows)
+- [Install Git on MacOS](https://git-scm.com/install/mac): the simplest approach is to just run `git --version` in Terminal, which will prompt you to install the Xcode Command Line Tools if Git isn't already present.
+
+### 4. Install an Integrated Development Environment (IDE)
 
 IDEs are fancy text editors that make it easier to write and run code.
 You may use whichever editor you like, but I recommend [Visual Studio Code (VS Code)](https://code.visualstudio.com/download).
 
-### 4. (Recommended) Set up an AI programming assistant
+### 5. (Recommended) Set up an AI programming assistant
 AI programming agents (e.g., Claude Code) are quickly becoming the norm for machine learning practitioners.
 Part of this course will be developing skills on the responsible use of AI for implementing and evaluating machine learning pipelines.
 While browser-based chatbots like ChatGPT or Claude can help write and debug code, they are limited to what you can copy/paste into the chat.
