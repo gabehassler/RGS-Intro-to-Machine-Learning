@@ -8,6 +8,11 @@ See the full [syllabus](RGS-intro-to-ml-syllabus_final.pdf) for the schedule, re
 
 ## Please complete before the first day of class
 
+It's fine if you run into challenges and are not able to complete all of these.
+We will help sort through some of them on the first day of class.
+These can all be completed independently.
+If you cannot get one step to work, continue on to the others.
+
 ### 1. Install a programming language on your computer
 
 You will have to write, run, and execute code for this course.
