@@ -1,7 +1,10 @@
 # RGS-Intro-to-Machine-Learning
 
-This is the GitHub repository where some materials for this class will be posted.
+**Machine Learning and Data Science for Policy Analysis**, taught by Carter Price and Gabe Hassler at the [RAND School of Public Policy](https://www.rand.edu).
+
+This is the GitHub repository where materials for this class will be posted.
 It is a living repository, and will be continuously updated throughout the course.
+See the full [syllabus](RGS-intro-to-ml-syllabus_final.pdf) for the schedule, readings, grading, and course policies.
 
 ## Please complete before the first day of class
 
@@ -27,14 +30,14 @@ Generally, it will be easier to write and run code outside of the virtual deskto
 ### 2. Set up a GitHub account
 If you do not already have one, set up an account on [github.com](https://github.com).
 GitHub is a place for storing, sharing, and distributing code.
-While RAND maintains an internal GitLab code repository at [code.rand.org](code.rand.org), this is only available inside the RAND network.
+While RAND maintains an internal GitLab code repository at code.rand.org, this is only available inside the RAND network.
 
 ### 3. Install an Integrated Development Environment (IDE)
 
 IDEs are fancy text editors that make it easier to write and run code.
-You may use whichever editor you like, but I recomment [Visual Studio Code (VS Code)](https://code.visualstudio.com/download).
+You may use whichever editor you like, but I recommend [Visual Studio Code (VS Code)](https://code.visualstudio.com/download).
 
-### 4. (Optional) Set up an AI programming assistant
+### 4. (Recommended) Set up an AI programming assistant
 AI programming agents (e.g., Claude Code) are quickly becoming the norm for machine learning practitioners.
 Part of this course will be developing skills on the responsible use of AI for implementing and evaluating machine learning pipelines.
 While browser-based chatbots like ChatGPT or Claude can help write and debug code, they are limited to what you can copy/paste into the chat.
@@ -45,8 +48,15 @@ I recommend that students in this course learn to use an AI programming assistan
 If you are a RAND employee / student in some RAND programs, you should have access to Claude Code and Codex through RAND.
 
 If you are not, then some free options include:
-- TODO
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) (Google, generous free tier)
+- [GitHub Copilot](https://github.com/features/copilot) free tier (limited monthly usage, available to students via the [GitHub Student Developer Pack](https://education.github.com/pack))
+
 
 Paid options include:
-- TODO
+- [Claude Code](https://www.anthropic.com/claude-code) (Anthropic), usable via a Claude Pro/Max subscription or pay-as-you-go API usage
+- [OpenAI Codex CLI](https://github.com/openai/codex), usable via a ChatGPT Plus/Pro subscription or pay-as-you-go API usage
+- [Cursor](https://cursor.com), an AI-native IDE built on VS Code
+- [GitHub Copilot](https://github.com/features/copilot) paid individual plan
 
+
+The examples I use in class will be based on Claude Code, but most AI programming assistants have similar setups.
