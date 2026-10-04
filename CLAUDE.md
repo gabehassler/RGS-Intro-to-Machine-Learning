@@ -12,6 +12,14 @@ Because the repo is public, do not commit sensitive information (e.g., student g
 
 Do work on the `working` branch, not `main`. The user merges `working` into `main` manually — do not merge or push to `main` yourself.
 
+## Repository structure
+
+- `code/` — standalone, numbered Python scripts shared across the course (e.g., data download/build scripts). **Run all scripts from the repository root**, not from inside `code/` (e.g., `python code/02_download_data.py`).
+- `assignments/` — one directory per assignment (e.g., `HW_01/`), containing the Quarto `.qmd` source and rendered output.
+- `documentation/` — supporting reference docs, including `data_dictionaries/` (generated variable metadata).
+- Python dependencies are tracked in `requirements.txt` (hand-edited, top-level packages only) and `requirements-lock.txt` (full pinned environment via `pip freeze`); the virtual environment lives in `.venv`.
+- `_quarto.yml` / `_environment` configure the Quarto project build.
+
 ## Status
 
-The repository currently holds only the syllabus, README, and license — course content (slides, notebooks, assignments) has not yet been added. This file will be expanded as that structure, tooling, and conventions are added. When you add meaningful structure (directories, build/lint/test commands, notebook conventions, data pipelines, etc.), update this file to reflect it.
+Course content (code, assignments, documentation) is actively being added. Keep this section in sync as structure, tooling, and conventions evolve.

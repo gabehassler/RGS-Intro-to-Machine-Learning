@@ -6,6 +6,14 @@ This is the GitHub repository where materials for this class will be posted.
 It is a living repository, and will be continuously updated throughout the course.
 See the full [syllabus](RGS-intro-to-ml-syllabus_final.pdf) for the schedule, readings, grading, and course policies.
 
+## Repository structure
+
+- `assignments/` — homework assignments, one subdirectory per assignment.
+- `code/` — shared scripts used across assignments (e.g., data download/build scripts).
+- `documentation/` — supporting reference docs for the data and scripts.
+
+Scripts in `code/` should be run from the repository root, e.g. `python code/02_download_data.py`, not from inside `code/`.
+
 ## Please complete before the first day of class
 
 It's fine if you run into challenges and are not able to complete all of these.
