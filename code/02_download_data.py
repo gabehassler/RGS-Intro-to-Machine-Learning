@@ -22,6 +22,7 @@ from pathlib import Path
 import censusdis.data as ced
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 DATASET = "acs/acs5"
 VINTAGE = 2024
@@ -152,7 +153,7 @@ def add_housing_burden(df):
 def download_tract():
     codes = all_acs_codes(QHSEBRDN_CODES)
     frames = []
-    for fips in STATE_FIPS:
+    for fips in tqdm(STATE_FIPS, desc="Downloading tract-level data"):
         frames.append(ced.download(
             dataset=DATASET, vintage=VINTAGE,
             download_variables=["NAME"] + codes,
@@ -198,7 +199,6 @@ def download_puma():
 def main():
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    print("Downloading tract-level data (looping over 51 states)...")
     download_tract().to_csv(OUTPUT_DIR / "sovi_tract.csv", index=False)
 
     print("Downloading county-level data...")
