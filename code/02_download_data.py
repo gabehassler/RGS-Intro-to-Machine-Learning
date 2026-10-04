@@ -1,18 +1,19 @@
-"""Download ACS 2020-2024 5-year estimates for the SoVI (Social Vulnerability
-Index) input variables at the tract, county, and PUMA level.
+"""Download raw ACS 2020-2024 5-year estimates for the Census variables that
+feed the SoVI (Social Vulnerability Index) at the tract, county, and PUMA
+level. See code/sovi_variables.py for which codes are fetched and why.
 
 Requires a Census API key in the CENSUS_API_KEY environment variable
-(free key: https://api.census.gov/data/key_signup.html).
+(free key: https://api.census.gov/data/key_signup.html). Loaded from a
+.env file in the repository root if present (see .env.example); if you
+already export CENSUS_API_KEY another way (shell profile, direnv, etc.),
+that takes precedence and no .env file is needed.
 
-Two of the 29 Table 1 variables are not available from the ACS and are
-skipped here:
-  - HOSPTPC (hospitals per capita, county-level only): not a Census variable;
-    needs a facility-location source such as CMS or HIFLD.
-  - QNRRES (nursing home residents per capita): ACS only publishes the
-    nursing-facility group-quarters count (table B26103) at the state level,
-    not at tract, county, or PUMA.
+This script only downloads raw ACS variables, keyed by GEOID; it does not
+compute any derived SoVI variables. Run code/03_build_sovi_variables.py
+after this to produce the processed SoVI outputs, so changes to the SoVI
+formulas don't require re-downloading.
 
-Output: data/sovi_tract.csv, data/sovi_county.csv, data/sovi_puma.csv.
+Output: data/raw/acs_tract.csv, data/raw/acs_county.csv, data/raw/acs_puma.csv.
 """
 
 import os
@@ -20,14 +21,18 @@ import time
 from pathlib import Path
 
 import censusdis.data as ced
-import numpy as np
 import pandas as pd
+from dotenv import load_dotenv
 from tqdm import tqdm
+
+from sovi_variables import HOUSING_COST_BURDEN_CODES, all_acs_codes
+
+load_dotenv()  # does not override a CENSUS_API_KEY already set in the environment
 
 DATASET = "acs/acs5"
 VINTAGE = 2024
 API_KEY = os.environ["CENSUS_API_KEY"]
-OUTPUT_DIR = Path("data")
+OUTPUT_DIR = Path("data") / "raw"
 
 # 50 states + DC. ACS "acs/acs5" also publishes Puerto Rico and other
 # territories; these are excluded since they weren't part of the requested
@@ -40,118 +45,9 @@ STATE_FIPS = [
     "54", "55", "56",
 ]
 
-# Each SoVI variable: (numerator ACS codes to sum, denominator ACS codes to
-# sum or None for a value used as-is, multiplier). Codes were verified against
-# the live ACS 2024 5-year variable metadata (api.census.gov/data/2024/acs/acs5/
-# groups/<table>.json) before being hardcoded here.
-SOVI_VARIABLES = {
-    "QASIAN": (["B02001_005E"], ["B02001_001E"], 100),
-    "QBLACK": (["B02001_003E"], ["B02001_001E"], 100),
-    "QHISP": (["B03003_003E"], ["B03003_001E"], 100),
-    "QNATAM": (["B02001_004E"], ["B02001_001E"], 100),
-    "QAGEDEP": (
-        [
-            "B01001_003E", "B01001_027E",  # under 5 (male, female)
-            "B01001_020E", "B01001_021E", "B01001_022E",  # 65+ male
-            "B01001_023E", "B01001_024E", "B01001_025E",
-            "B01001_044E", "B01001_045E", "B01001_046E",  # 65+ female
-            "B01001_047E", "B01001_048E", "B01001_049E",
-        ],
-        ["B01001_001E"], 100,
-    ),
-    "QFAM": (["B09002_002E"], ["B09002_001E"], 100),
-    "MEDAGE": (["B01002_001E"], None, 1),
-    "QSSBEN": (["B19055_002E"], ["B19055_001E"], 100),
-    "QPOVTY": (["B17001_002E"], ["B17001_001E"], 100),
-    "QRICH": (["B19001_017E"], ["B19001_001E"], 100),
-    "PERCAP": (["B19301_001E"], None, 1),
-    "QESL": (
-        ["C16002_004E", "C16002_007E", "C16002_010E", "C16002_013E"],
-        ["C16002_001E"], 100,
-    ),
-    "QFEMALE": (["B01001_026E"], ["B01001_001E"], 100),
-    "QFHH": (["B11001_006E"], ["B11001_001E"], 100),
-    "QNOHLTH": (
-        [f"B27001_{n:03d}E" for n in
-         (5, 8, 11, 14, 17, 20, 23, 26, 29, 33, 36, 39, 42, 45, 48, 51, 54, 57)],
-        ["B27001_001E"], 100,
-    ),
-    "QED12LES": (
-        [f"B15003_{n:03d}E" for n in range(2, 17)],
-        ["B15003_001E"], 100,
-    ),
-    "QCVLUN": (["B23025_005E"], ["B23025_003E"], 100),
-    "PPUNIT": (["B01001_001E"], ["B25001_001E"], 1),
-    "QRENTER": (["B25003_003E"], ["B25003_001E"], 100),
-    "MDHSEVAL": (["B25077_001E"], None, 1),
-    "MDGRENT": (["B25064_001E"], None, 1),
-    "QMOHO": (["B25024_010E"], ["B25024_001E"], 100),
-    "QEXTRCT": (
-        ["C24030_004E", "C24030_005E", "C24030_031E", "C24030_032E"],
-        ["C24030_001E"], 100,
-    ),
-    "QSERV": (["C24010_019E", "C24010_055E"], ["C24010_001E"], 100),
-    "QFEMLBR": (
-        [f"B23001_{n:03d}E" for n in
-         (90, 97, 104, 111, 118, 125, 132, 139, 146, 153, 160, 165, 170)],
-        ["B23001_088E"], 100,
-    ),
-    "QNOAUTO": (["B25044_003E", "B25044_010E"], ["B25044_001E"], 100),
-    "QUNOCCHU": (["B25002_003E"], ["B25002_001E"], 100),
-}
-
-# QHSEBRDN ("percent of households spending >40% of income on housing",
-# Table 1 marks it tract-level ONLY) needs a denominator that excludes
-# "not computed" cells, so it doesn't fit the simple sum/sum pattern above
-# and is computed separately in add_housing_burden().
-QHSEBRDN_CODES = [
-    "B25070_001E", "B25070_009E", "B25070_010E", "B25070_011E",
-    "B25091_001E", "B25091_010E", "B25091_011E", "B25091_012E",
-    "B25091_021E", "B25091_022E", "B25091_023E",
-]
-
-OUTPUT_COLUMNS = [
-    "QASIAN", "QBLACK", "QHISP", "QNATAM", "QAGEDEP", "QFAM", "MEDAGE",
-    "QSSBEN", "QPOVTY", "QRICH", "PERCAP", "QESL", "QFEMALE", "QFHH",
-    "QNOHLTH", "QED12LES", "QCVLUN", "PPUNIT", "QRENTER", "MDHSEVAL",
-    "MDGRENT", "QMOHO", "QEXTRCT", "QSERV", "QFEMLBR", "QNOAUTO", "QUNOCCHU",
-]
-
-
-def all_acs_codes(extra_codes=()):
-    codes = set(extra_codes)
-    for num_cols, den_cols, _ in SOVI_VARIABLES.values():
-        codes.update(num_cols)
-        if den_cols:
-            codes.update(den_cols)
-    return sorted(codes)
-
-
-def add_sovi_variables(df):
-    for name, (num_cols, den_cols, mult) in SOVI_VARIABLES.items():
-        numer = df[num_cols].sum(axis=1)
-        if den_cols is None:
-            df[name] = numer
-        else:
-            denom = df[den_cols].sum(axis=1)
-            df[name] = np.where(denom == 0, np.nan, numer / denom * mult)
-    return df
-
-
-def add_housing_burden(df):
-    burdened = df[
-        ["B25070_009E", "B25070_010E", "B25091_010E", "B25091_011E",
-         "B25091_021E", "B25091_022E"]
-    ].sum(axis=1)
-    renter_specified = df["B25070_001E"] - df["B25070_011E"]
-    owner_specified = df["B25091_001E"] - df["B25091_012E"] - df["B25091_023E"]
-    denom = renter_specified + owner_specified
-    df["QHSEBRDN"] = np.where(denom == 0, np.nan, burdened / denom * 100)
-    return df
-
 
 def download_tract():
-    codes = all_acs_codes(QHSEBRDN_CODES)
+    codes = all_acs_codes(HOUSING_COST_BURDEN_CODES)
     frames = []
     for fips in tqdm(STATE_FIPS, desc="Downloading tract-level data"):
         frames.append(ced.download(
@@ -162,10 +58,8 @@ def download_tract():
         ))
         time.sleep(0.2)
     df = pd.concat(frames, ignore_index=True)
-    df = add_sovi_variables(df)
-    df = add_housing_burden(df)
     df["GEOID"] = df["STATE"] + df["COUNTY"] + df["TRACT"]
-    return df[["GEOID", "NAME"] + OUTPUT_COLUMNS + ["QHSEBRDN"]]
+    return df[["GEOID", "NAME"] + codes]
 
 
 def download_county():
@@ -177,9 +71,8 @@ def download_county():
         api_key=API_KEY,
     )
     df = df[df["STATE"].isin(STATE_FIPS)]
-    df = add_sovi_variables(df)
     df["GEOID"] = df["STATE"] + df["COUNTY"]
-    return df[["GEOID", "NAME"] + OUTPUT_COLUMNS]
+    return df[["GEOID", "NAME"] + codes]
 
 
 def download_puma():
@@ -191,21 +84,23 @@ def download_puma():
         api_key=API_KEY,
     )
     df = df[df["STATE"].isin(STATE_FIPS)]
-    df = add_sovi_variables(df)
     df["GEOID"] = df["STATE"] + df["PUBLIC_USE_MICRODATA_AREA"]
-    return df[["GEOID", "NAME"] + OUTPUT_COLUMNS]
+    return df[["GEOID", "NAME"] + codes]
+
+
+def save(df, name):
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    df.to_csv(OUTPUT_DIR / name, index=False)
 
 
 def main():
-    OUTPUT_DIR.mkdir(exist_ok=True)
-
-    download_tract().to_csv(OUTPUT_DIR / "sovi_tract.csv", index=False)
+    save(download_tract(), "acs_tract.csv")
 
     print("Downloading county-level data...")
-    download_county().to_csv(OUTPUT_DIR / "sovi_county.csv", index=False)
+    save(download_county(), "acs_county.csv")
 
     print("Downloading PUMA-level data...")
-    download_puma().to_csv(OUTPUT_DIR / "sovi_puma.csv", index=False)
+    save(download_puma(), "acs_puma.csv")
 
 
 if __name__ == "__main__":
