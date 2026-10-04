@@ -4,13 +4,18 @@ for the formulas.
 
 Run code/02_download_data.py first to produce the raw inputs this script
 reads. This script only transforms already-downloaded data, so changing a
-SoVI formula does not require re-downloading.
+SoVI formula does not require re-downloading. It also filters the raw data
+(which covers every state/territory "acs/acs5" publishes) down to the
+desired scope.
 
 Output: data/processed/sovi_tract.csv, data/processed/sovi_county.csv,
 data/processed/sovi_puma.csv.
 """
 
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))  # find sovi_variables.py when not run from code/
 
 import numpy as np
 import pandas as pd
@@ -19,6 +24,17 @@ from sovi_variables import OUTPUT_COLUMNS, SOVI_VARIABLES
 
 RAW_DIR = Path("data") / "raw"
 OUTPUT_DIR = Path("data") / "processed"
+
+# 50 states + DC. The raw ACS data also includes Puerto Rico and could
+# include other territories in the future; these are excluded here since
+# they weren't part of the requested scope. Adjust this list to change scope.
+STATE_FIPS = [
+    "01", "02", "04", "05", "06", "08", "09", "10", "11", "12", "13", "15",
+    "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27",
+    "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
+    "40", "41", "42", "44", "45", "46", "47", "48", "49", "50", "51", "53",
+    "54", "55", "56",
+]
 
 
 def add_sovi_variables(df):
@@ -45,7 +61,8 @@ def add_housing_burden(df):
 
 
 def read_raw(name):
-    return pd.read_csv(RAW_DIR / name, dtype={"GEOID": str})
+    df = pd.read_csv(RAW_DIR / name, dtype={"GEOID": str})
+    return df[df["GEOID"].str[:2].isin(STATE_FIPS)].copy()
 
 
 def build_tract():
@@ -72,11 +89,6 @@ def save(df, name):
     df.to_csv(OUTPUT_DIR / name, index=False)
 
 
-def main():
-    save(build_tract(), "sovi_tract.csv")
-    save(build_county(), "sovi_county.csv")
-    save(build_puma(), "sovi_puma.csv")
-
-
-if __name__ == "__main__":
-    main()
+save(build_tract(), "sovi_tract.csv")
+save(build_county(), "sovi_county.csv")
+save(build_puma(), "sovi_puma.csv")

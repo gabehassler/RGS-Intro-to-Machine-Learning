@@ -8,17 +8,24 @@ Requires a Census API key in the CENSUS_API_KEY environment variable
 already export CENSUS_API_KEY another way (shell profile, direnv, etc.),
 that takes precedence and no .env file is needed.
 
-This script only downloads raw ACS variables, keyed by GEOID; it does not
-compute any derived SoVI variables. Run code/03_build_sovi_variables.py
-after this to produce the processed SoVI outputs, so changes to the SoVI
-formulas don't require re-downloading.
+This script only downloads raw ACS variables, keyed by GEOID, for every
+state and territory the "acs/acs5" dataset publishes; it does not filter
+rows or compute any derived SoVI variables. Run
+code/03_build_sovi_variables.py after this to filter to the desired
+states/territories and produce the processed SoVI outputs, so changes to
+the scope or formulas don't require re-downloading.
 
-Output: data/raw/acs_tract.csv, data/raw/acs_county.csv, data/raw/acs_puma.csv.
+Output: data/raw/acs_tract.csv, data/raw/acs_county.csv, data/raw/acs_puma.csv,
+and data/raw/tract_by_state/acs_tract_<state_fips>.csv (one file per state,
+combined into acs_tract.csv).
 """
 
 import os
+import sys
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))  # find sovi_variables.py when not run from code/
 
 import censusdis.data as ced
 import pandas as pd
@@ -33,33 +40,37 @@ DATASET = "acs/acs5"
 VINTAGE = 2024
 API_KEY = os.environ["CENSUS_API_KEY"]
 OUTPUT_DIR = Path("data") / "raw"
+TRACT_BY_STATE_DIR = OUTPUT_DIR / "tract_by_state"
 
-# 50 states + DC. ACS "acs/acs5" also publishes Puerto Rico and other
-# territories; these are excluded since they weren't part of the requested
-# scope.
-STATE_FIPS = [
-    "01", "02", "04", "05", "06", "08", "09", "10", "11", "12", "13", "15",
-    "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27",
-    "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38", "39",
-    "40", "41", "42", "44", "45", "46", "47", "48", "49", "50", "51", "53",
-    "54", "55", "56",
-]
+
+def all_state_fips():
+    """Every state/territory FIPS code this dataset vintage publishes."""
+    df = ced.download(
+        dataset=DATASET, vintage=VINTAGE,
+        download_variables=["NAME"],
+        state="*",
+        api_key=API_KEY,
+    )
+    return sorted(df["STATE"])
 
 
 def download_tract():
     codes = all_acs_codes(HOUSING_COST_BURDEN_CODES)
+    TRACT_BY_STATE_DIR.mkdir(parents=True, exist_ok=True)
     frames = []
-    for fips in tqdm(STATE_FIPS, desc="Downloading tract-level data"):
-        frames.append(ced.download(
+    for fips in tqdm(all_state_fips(), desc="Downloading tract-level data"):
+        df = ced.download(
             dataset=DATASET, vintage=VINTAGE,
             download_variables=["NAME"] + codes,
             state=fips, county="*", tract="*",
             api_key=API_KEY,
-        ))
+        )
+        df["GEOID"] = df["STATE"] + df["COUNTY"] + df["TRACT"]
+        df = df[["GEOID", "NAME"] + codes]
+        df.to_csv(TRACT_BY_STATE_DIR / f"acs_tract_{fips}.csv", index=False)
+        frames.append(df)
         time.sleep(0.2)
-    df = pd.concat(frames, ignore_index=True)
-    df["GEOID"] = df["STATE"] + df["COUNTY"] + df["TRACT"]
-    return df[["GEOID", "NAME"] + codes]
+    return pd.concat(frames, ignore_index=True)
 
 
 def download_county():
@@ -70,7 +81,6 @@ def download_county():
         state="*", county="*",
         api_key=API_KEY,
     )
-    df = df[df["STATE"].isin(STATE_FIPS)]
     df["GEOID"] = df["STATE"] + df["COUNTY"]
     return df[["GEOID", "NAME"] + codes]
 
@@ -83,7 +93,6 @@ def download_puma():
         state="*", public_use_microdata_area="*",
         api_key=API_KEY,
     )
-    df = df[df["STATE"].isin(STATE_FIPS)]
     df["GEOID"] = df["STATE"] + df["PUBLIC_USE_MICRODATA_AREA"]
     return df[["GEOID", "NAME"] + codes]
 
@@ -93,15 +102,10 @@ def save(df, name):
     df.to_csv(OUTPUT_DIR / name, index=False)
 
 
-def main():
-    save(download_tract(), "acs_tract.csv")
+save(download_tract(), "acs_tract.csv")
 
-    print("Downloading county-level data...")
-    save(download_county(), "acs_county.csv")
+print("Downloading county-level data...")
+save(download_county(), "acs_county.csv")
 
-    print("Downloading PUMA-level data...")
-    save(download_puma(), "acs_puma.csv")
-
-
-if __name__ == "__main__":
-    main()
+print("Downloading PUMA-level data...")
+save(download_puma(), "acs_puma.csv")
