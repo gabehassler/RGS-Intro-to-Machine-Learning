@@ -9,7 +9,7 @@ format:
 
 The Social Vulnerability Index (SoVI) developed University of Southern California Hazards, Vulverability, and Resilience Institute is a metric that " measures the social vulnerability of U.S. counties to environmental hazards."
 
-TODO - contextualize the assignment in the larger course.
+This assignment corresponds to Week 2 of the course, "Data Management" (acquisition, processing, transformation, and standards). Before you can apply any machine learning method, you need data in a usable form, and you need to understand its structure well enough to know what it can and cannot tell you. This assignment walks through acquiring real policy-relevant data from the Census API, processing it into the variables used in a well-known applied index (SoVI), and examining basic descriptive statistics across different levels of geographic aggregation.
 
 ## Preliminary Work
 
@@ -53,12 +53,59 @@ I've written scripts to do this for you.
 
 ## Assignment
 
-The scripts you ran in Step 4 above downloaded 5-year ACS data for a TODO - describe data + why we have these particular variables.
+The scripts you ran in Step 4 above downloaded 2024 5-year American Community Survey (ACS) data, at the tract, county, and PUMA level, for the demographic, socioeconomic, and housing variables that feed into the Social Vulnerability Index (SoVI) described in the Introduction above. These are not arbitrary variables: each one (e.g., percent below poverty, percent with no vehicle, median age, percent renters) is a component the SoVI methodology combines to measure a community's vulnerability to environmental hazards. See `documentation/README.md` for the full crosswalk from each processed variable back to its underlying ACS table(s) and codes.
 
-### Step 5: Basic Descriptive Statistics
+These three levels are all Census geographies, but represent different things:
 
-1. Create a notebook file (e.g., Jupyter, Quarto). All the steps below should be completed in this document (code, results, explanation). Do not write explanations in code comments.
-2. Create a table that shows the mean and standard deviation for each numeric variable across all three datasets (tract-level, county-level, and PUMA-level).
-3. Answer the following questions:
-   1. Describe the general pattern in the mean values across the three datasets. Are the means the same across each level of aggregation (tract, county , PUMA)? Why is this the case?
-   2. Are the standard deviations the same across each level or aggregation? Why is this the case?
+- **Tract**: a small, relatively permanent statistical subdivision of a county, drawn to contain roughly 4,000 people.
+- **County**: a standard legal/administrative unit; unlike tracts and PUMAs, counties are not drawn to any population target, so they vary widely in size.
+- **PUMA** (Public Use Microdata Area): a geographic unit built from Census tracts, drawn to contain roughly 100,000 people, used for releasing microdata without identifying individuals.
+
+
+Before you begin, create a new Jupyter, Quarto, or RMarkdown notbook file with header "HW_01" in the `assignments` directory of your repository (create the directory if you haven't already).
+You will complete the following work in this notebook.
+
+All code should be in code blocks (see example below), while any questions requiring explanations should be written in standard Markdown.
+
+### Part 1: Load the Data
+
+1. Load all three datasets from `data/processed`.
+2. Display how many rows and columns are in each dataset.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 1:** Do all three datasets have the same variables? What are the differences, if any?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+### Part 2: Quality Checks
+
+For each variable, compute the number of missing values, the minimum, and the maximum.
+
+**Question 2:** What concerns, if any, do you have about the quality of this data? Do all values make theoretical sense?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+### Part 3: Calculate Descriptive Statistics
+
+1. Create a table (or more than one table) that allows you compare the mean and standard deviation for each variable across all three datasets. The goal is to compare across datasets and not variables.
+
+```{python}
+# your code here
+```
+
+**Question 3:** Describe the general pattern in the mean values across the three datasets. Are the means the same across each level of aggregation (tract, county , PUMA)? Is one of the datasets an outlier? Explain the results in the context of the properties of census tracts, counties and PUMAs.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+***Question 4:** Do the same as the question above, but for the standard deviations.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
