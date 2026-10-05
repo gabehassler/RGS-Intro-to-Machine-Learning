@@ -7,14 +7,14 @@ format:
 
 # Introduction
 
-The Social Vulnerability Index (SoVI) developed University of Southern California Hazards, Vulverability, and Resilience Institute is a metric that " measures the social vulnerability of U.S. counties to environmental hazards."
+The Social Vulnerability Index (SoVI) developed by the University of Southern California Hazards, Vulnerability, and Resilience Institute is a metric that "measures the social vulnerability of U.S. counties to environmental hazards."
 
 This assignment corresponds to Week 2 of the course, "Data Management" (acquisition, processing, transformation, and standards). Before you can apply any machine learning method, you need data in a usable form, and you need to understand its structure well enough to know what it can and cannot tell you. This assignment walks through acquiring real policy-relevant data from the Census API, processing it into the variables used in a well-known applied index (SoVI), and examining basic descriptive statistics across different levels of geographic aggregation.
 
 ## Preliminary Work
 
 The steps below are preliminary work you will need to complete before you can complete the actual assignment.
-You will not be able to complete the assignment withtout them, but you do not need to document them in your HW_01 notebook.
+You will not be able to complete the assignment without them, but you do not need to document them in your HW_01 notebook.
 
 ### Step 1: Set up your course repository
 
@@ -24,11 +24,11 @@ You will not be able to complete the assignment withtout them, but you do not ne
 4. Add me @gabehassler as a collaborator on the project.
 
 ### Step 2: Set up the Census API Key
-You will be donwloading data from the US Census API.
+You will be downloading data from the US Census API.
 
 1. Request the key [here](https://api.census.gov/data/key_signup.html).
 
-2. Create a `.env` file at the root of your git repo and add  *environment variable* API key. The file should look like:
+2. Create a `.env` file at the root of your git repo and add your Census API key as an *environment variable*. The file should look like:
 
 ```{shell}
 CENSUS_API_KEY=<YOUR API KEY>
@@ -47,7 +47,7 @@ CENSUS_API_KEY=<YOUR API KEY>
 
 I've written scripts to do this for you.
 
-1. Create a `code` directory in your repository. Copy all the scripts on the `code` directory of this repository to your repository.
+1. Create a `code` directory in your repository. Copy all the scripts in the `code` directory of this repository to your repository.
 2. Run each numbered script in sequential order. You can do this in either the terminal or VSCode. From the terminal, type, `python code/<script_name>.py`. In VSCode, you can also hit the "play" symbol when a file is open in the editor. The download script will take a while.
 3. add the `data` folder to your .gitignore. You do not want to commit any data.
 
@@ -62,7 +62,7 @@ These three levels are all Census geographies, but represent different things:
 - **PUMA** (Public Use Microdata Area): a geographic unit built from Census tracts, drawn to contain roughly 100,000 people, used for releasing microdata without identifying individuals.
 
 
-Before you begin, create a new Jupyter, Quarto, or RMarkdown notbook file with header "HW_01" in the `assignments` directory of your repository (create the directory if you haven't already).
+Before you begin, create a new Jupyter, Quarto, or RMarkdown notebook file with header "HW_01" in the `assignments` directory of your repository (create the directory if you haven't already).
 You will complete the following work in this notebook.
 
 All code should be in code blocks (see example below), while any questions requiring explanations should be written in standard Markdown.
@@ -87,6 +87,12 @@ All code should be in code blocks (see example below), while any questions requi
 
 For each variable, compute the number of missing values, the minimum, and the maximum.
 
+```{python}
+
+# your code here
+
+```
+
 **Question 2:** What concerns, if any, do you have about the quality of this data? Do all values make theoretical sense?
 
 **Response:** \<YOUR RESPONSE HERE\>
@@ -94,18 +100,18 @@ For each variable, compute the number of missing values, the minimum, and the ma
 
 ### Part 3: Calculate Descriptive Statistics
 
-1. Create a table (or more than one table) that allows you compare the mean and standard deviation for each variable across all three datasets. The goal is to compare across datasets and not variables.
+1. Create a table (or more than one table) that allows you to compare the mean and standard deviation for each variable across all three datasets. The goal is to compare across datasets and not variables.
 
 ```{python}
 # your code here
 ```
 
-**Question 3:** Describe the general pattern in the mean values across the three datasets. Are the means the same across each level of aggregation (tract, county , PUMA)? Is one of the datasets an outlier? Explain the results in the context of the properties of census tracts, counties and PUMAs.
+**Question 3:** Describe the general pattern in the mean values across the three datasets. Are the means the same across each level of aggregation (tract, county, PUMA)? Is one of the datasets an outlier? Explain the results in the context of the properties of census tracts, counties and PUMAs.
 
 **Response:** \<YOUR RESPONSE HERE\>
 
 
-***Question 4:** Do the same as the question above, but for the standard deviations.
+**Question 4:** Do the same as the question above, but for the standard deviations.
 
 **Response:** \<YOUR RESPONSE HERE\>
 
