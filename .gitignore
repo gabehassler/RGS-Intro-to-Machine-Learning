@@ -1,5 +1,9 @@
 .venv
 /.quarto/
-**/*.quarto_ipynb
+**/*.quarto_ipynb*
 *.html
 **/__pycache__/**
+data/*
+.env
+**/*.quarto_ipynb
+assignments/**_solution.qmd

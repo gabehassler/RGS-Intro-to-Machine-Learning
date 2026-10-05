@@ -3,3 +3,5 @@ censusdis
 requests
 pandas
 numpy
+tqdm
+python-dotenv
