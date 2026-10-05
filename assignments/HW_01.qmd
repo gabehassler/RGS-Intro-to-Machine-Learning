@@ -9,9 +9,12 @@ format:
 
 The Social Vulnerability Index (SoVI) developed University of Southern California Hazards, Vulverability, and Resilience Institute is a metric that " measures the social vulnerability of U.S. counties to environmental hazards."
 
-It uses principal component analysis (PCA) across a range of possible community-level features that are associated with social vulnerability.
-There are a lot of individual decisions that affect
+TODO - contextualize the assignment in the larger course.
 
+## Preliminary Work
+
+The steps below are preliminary work you will need to complete before you can complete the actual assignment.
+You will not be able to complete the assignment withtout them, but you do not need to document them in your HW_01 notebook.
 
 ### Step 1: Set up your course repository
 
@@ -48,10 +51,14 @@ I've written scripts to do this for you.
 2. Run each numbered script in sequential order. You can do this in either the terminal or VSCode. From the terminal, type, `python code/<script_name>.py`. In VSCode, you can also hit the "play" symbol when a file is open in the editor. The download script will take a while.
 3. add the `data` folder to your .gitignore. You do not want to commit any data.
 
+## Assignment
+
+The scripts you ran in Step 4 above downloaded 5-year ACS data for a TODO - describe data + why we have these particular variables.
+
 ### Step 5: Basic Descriptive Statistics
 
 1. Create a notebook file (e.g., Jupyter, Quarto). All the steps below should be completed in this document (code, results, explanation). Do not write explanations in code comments.
-2. Create a table that shows the mean and standard deviation for each numeric variable across all three datasets.
+2. Create a table that shows the mean and standard deviation for each numeric variable across all three datasets (tract-level, county-level, and PUMA-level).
 3. Answer the following questions:
-   1. Are the means the same across each level of aggregation (tract, county , PUMA)? Why is this the case?
+   1. Describe the general pattern in the mean values across the three datasets. Are the means the same across each level of aggregation (tract, county , PUMA)? Why is this the case?
    2. Are the standard deviations the same across each level or aggregation? Why is this the case?
