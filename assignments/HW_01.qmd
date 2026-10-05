@@ -1,0 +1,57 @@
+---
+title: "HW 01"
+format:
+    html:
+        embed-resources: true
+---
+
+# Introduction
+
+The Social Vulnerability Index (SoVI) developed University of Southern California Hazards, Vulverability, and Resilience Institute is a metric that " measures the social vulnerability of U.S. counties to environmental hazards."
+
+It uses principal component analysis (PCA) across a range of possible community-level features that are associated with social vulnerability.
+There are a lot of individual decisions that affect
+
+
+### Step 1: Set up your course repository
+
+1. On GitHub.com, create a new private repository where you will share all of your work for this class with me.
+2. Clone the repository to your computer.
+3. Fill out this [form](https://docs.google.com/forms/d/e/1FAIpQLSeGFGaIWcfXhtonaRaJPJwSGkUsFW429lkeWerNxy71ZSkzJQ/viewform?usp=publish-editor) to share the repository with me. The URL should be how you navigate to your repository in a browser (e.g., https://github.com/gabehassler/RGS-Intro-to-Machine-Learning). It should not end in `.git`.
+4. Add me @gabehassler as a collaborator on the project.
+
+### Step 2: Set up the Census API Key
+You will be donwloading data from the US Census API.
+
+1. Request the key [here](https://api.census.gov/data/key_signup.html).
+
+2. Create a `.env` file at the root of your git repo and add  *environment variable* API key. The file should look like:
+
+```{shell}
+CENSUS_API_KEY=<YOUR API KEY>
+```
+
+3. Add the `.env` file to your `.gitignore`. Make sure that it is not being tracked by git.
+
+### Step 3: Set up the python virtual environment
+
+1. Copy the `requirements.txt` file from this repository to the root of your repository.
+2. Create the virtual environment by running `python -m venv .venv` or `python3 -m venv .venv`.
+3. Activate the python environment. On a Mac, use `source .venv/bin/activate`. On a PC, use `.\.venv\Scripts\Activate.ps1` or `.\.venv\Scripts\activate.bat` depending on whether you're using PowerShell or the Command Prompt. If successful, you should see a `(.venv)` appear to the left of your terminal line.
+4. Run `pip install -r requirements.txt`. This will install some of the packages you will need for this assignment.
+
+### Step 4: Download and process the data
+
+I've written scripts to do this for you.
+
+1. Create a `code` directory in your repository. Copy all the scripts on the `code` directory of this repository to your repository.
+2. Run each numbered script in sequential order. You can do this in either the terminal or VSCode. From the terminal, type, `python code/<script_name>.py`. In VSCode, you can also hit the "play" symbol when a file is open in the editor. The download script will take a while.
+3. add the `data` folder to your .gitignore. You do not want to commit any data.
+
+### Step 5: Basic Descriptive Statistics
+
+1. Create a notebook file (e.g., Jupyter, Quarto). All the steps below should be completed in this document (code, results, explanation). Do not write explanations in code comments.
+2. Create a table that shows the mean and standard deviation for each numeric variable across all three datasets.
+3. Answer the following questions:
+   1. Are the means the same across each level of aggregation (tract, county , PUMA)? Why is this the case?
+   2. Are the standard deviations the same across each level or aggregation? Why is this the case?
