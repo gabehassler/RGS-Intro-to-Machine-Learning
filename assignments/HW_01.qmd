@@ -51,6 +51,10 @@ I've written scripts to do this for you.
 2. Run each numbered script in sequential order. You can do this in either the terminal or VSCode. From the terminal, type, `python code/<script_name>.py`. In VSCode, you can also hit the "play" symbol when a file is open in the editor. The download script will take a while.
 3. add the `data` folder to your .gitignore. You do not want to commit any data.
 
+### Step 5: Copy Documentation
+
+1. Move the `documentation/README.md` file in this repository to the same location in your repository.
+
 ## Assignment
 
 The scripts you ran in Step 4 above downloaded 2024 5-year American Community Survey (ACS) data, at the tract, county, and PUMA level, for the demographic, socioeconomic, and housing variables that feed into the Social Vulnerability Index (SoVI) described in the Introduction above. These are not arbitrary variables: each one (e.g., percent below poverty, percent with no vehicle, median age, percent renters) is a component the SoVI methodology combines to measure a community's vulnerability to environmental hazards. See `documentation/README.md` for the full crosswalk from each processed variable back to its underlying ACS table(s) and codes.
