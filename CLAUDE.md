@@ -17,7 +17,7 @@ Do work on the `working` branch, not `main`. The user merges `working` into `mai
 - `code/` — standalone, numbered Python scripts shared across the course (e.g., data download/build scripts). **Run all scripts from the repository root**, not from inside `code/` (e.g., `python code/02_download_data.py`).
 - `assignments/` — one directory per assignment (e.g., `HW_01/`), containing the Quarto `.qmd` source and rendered output.
 - `documentation/` — supporting reference docs, including `data_dictionaries/` (generated variable metadata).
-- Python dependencies are tracked in `requirements.txt` (hand-edited, top-level packages only) and `requirements-lock.txt` (full pinned environment via `pip freeze`); the virtual environment lives in `.venv`.
+- Python dependencies are tracked in `requirements.txt` (hand-edited, top-level packages only); the virtual environment lives in `.venv`.
 - `_quarto.yml` / `_environment` configure the Quarto project build.
 
 ## Status

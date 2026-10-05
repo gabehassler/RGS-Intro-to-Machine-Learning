@@ -14,6 +14,31 @@ See the full [syllabus](RGS-intro-to-ml-syllabus_final.pdf) for the schedule, re
 
 Scripts in `code/` should be run from the repository root, e.g. `python code/02_download_data.py`, not from inside `code/`.
 
+## Programming Assignments
+
+I will post homework assignments in the _assignments_ folder of this GitHub repository (repo).
+Each of you will have your own repository where you will store your code for this class and submit your homework.
+
+
+### Instructions
+
+Each week:
+
+1. Check out the 'develop' branch of your repo.
+2. Create a notebook file (either Jupyter, R Markdown, or Quarto) in your 'assignments' folder with file header "HW_XX" where "XX" is the homework number. You should be able to compile this document to an HTML file.
+    * For example, if you use Jupyter, then you would create a file called "HW_01.ipynb" for the first homework assignment.
+    * I will typically post the homework as a Quarto markdown document ('.qmd'). You may use that document directly as a starting point. If your are using another document format, make sure that all instructions / questions are included with your final submission.
+4. Commit the initial version of your notebook to the 'develop' branch.
+5. Complete the assignment.
+    * For longer assignments, I recommend committing your work periodically to the 'develop' branch.
+    * Don't commit the HTML output in your develop branch.
+6. Merge the 'develop' branch into the 'main' branch.
+8. Output the results of your notebook to an .html file and commit that .html file to the 'main' branch.
+    * __NOTE: The HTML file should have a filename "HW_XX.html", using exact capitalization and exactly 2 digits for "XX". Acceptable filenames include "HW_01.html", "HW_02.html", and "HW_10.html". Unacceptable filenames include "HW_1.html", "hw_01.html", "HW-01.html", and "HW_01.HTML".__
+    * Once the assignment is on the 'main' branch, it is considered turned in. Do not merge / commit to main until you are ready to submit.
+9. Push your changes to your GitHub repo.
+
+
 ## Please complete before the first day of class
 
 It's fine if you run into challenges and are not able to complete all of these.
