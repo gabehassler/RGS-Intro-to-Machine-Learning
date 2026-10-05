@@ -1,4 +1,4 @@
-# RGS-Intro-to-Machine-Learning
+# RGS-Intro-to-Machine-Learning (Fall 2026)
 
 **Machine Learning and Data Science for Policy Analysis**, taught by Carter Price and Gabe Hassler at the [RAND School of Public Policy](https://www.rand.edu).
 
