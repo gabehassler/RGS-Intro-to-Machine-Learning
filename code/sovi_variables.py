@@ -3,6 +3,8 @@ Table 1 of the assignment (based on Cutter's SoVI): which ACS codes each one
 is built from, and how to combine them. Variable names here are our own
 human-readable names, not a reproduction of SoVI's original cryptic codes
 (e.g. QASIAN) — see documentation/README.md for the crosswalk back to Table 1.
+Also includes `population` (total population), which is not one of the
+Table 1 SoVI variables but is useful context for interpreting the others.
 
 Imported by both code/02_download_data.py (to know which raw ACS codes to
 fetch) and code/03_build_sovi_variables.py (to compute the derived
@@ -25,6 +27,7 @@ skipped here:
 # groups/<table>.json) before being hardcoded here. The trailing comment on
 # each line is the corresponding SoVI code from Table 1, for traceability.
 SOVI_VARIABLES = {
+    "population": (["B01001_001E"], None, 1),  # not a Table 1 SoVI variable; total population
     "pct_asian": (["B02001_005E"], ["B02001_001E"], 100),  # QASIAN
     "pct_black": (["B02001_003E"], ["B02001_001E"], 100),  # QBLACK
     "pct_hispanic": (["B03003_003E"], ["B03003_001E"], 100),  # QHISP
@@ -92,6 +95,7 @@ HOUSING_COST_BURDEN_CODES = [
 ]
 
 OUTPUT_COLUMNS = [
+    "population",
     "pct_asian", "pct_black", "pct_hispanic", "pct_native_american",
     "pct_age_dependent", "pct_children_married_couple_family", "median_age",
     "pct_household_social_security_income", "pct_below_poverty",
