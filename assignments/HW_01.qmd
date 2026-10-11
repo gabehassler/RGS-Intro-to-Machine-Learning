@@ -5,7 +5,84 @@ format:
         embed-resources: true
 ---
 
-# Introduction
+
+## Deadline and Submission Instructions
+
+Both the **conceptual assignment** and the **programming assignment** are due on **Wednesday, October 14**.
+The programming assignment must be submitted via GitHub using the procedure on the class GitHub page.
+The conceptual assigment may be submitted alongside the programming assignment in the same notebook file, or can be completed separately and emailed to Carter (price@rand.org) and Gabe (ghassler@rand.org) as a word doc, pdf, etc.
+
+
+
+# Conceptual Assignment
+
+A note on formatting: this is a Quarto `.qmd` file.
+You can view it as plain text, but the math in the conceptual assignment may be hard to read unless you are familiar with LaTex math.
+While I've attached a rendered version, you can render this file yourself via any Markdown or Quarto compiler.
+If you would like to view the equations in MS word, you can copy them into the equation editor and hit "Convert -> Current - Professional" in the Equations tab.
+You do not need to include the formatted equations from the questions in your response, so don't worry about it if you're having trouble getting them to render.
+
+
+
+**Q1:** Will the cumulative number of people who have gone to college converge or diverge? Explain.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+**Q2:** The release of chlorofluorocarbons (CFCs) was banned by treaty and CFCs decay in the atmosphere over time. Would we expect the quantity of CFCs to converge after an arbitrarily long period of time without new emissions? Explain.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+**Q3:** Which series converges the fastest: $\{\frac{i^2-3}{i^3}\}_{i \in \mathbb{N}}$, $\{\frac{i^3-3}{i^5}\}_{i \in \mathbb{N}}$, or $\{\frac{100}{i^3}\}_{i \in \mathbb{N}}$? Explain.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+**Q4:** Consider two algorithms: (A) has quadratic convergence and requires $\mathcal{O}(n^3)$ operations and (B) has linear convergence and requires $\mathcal{O}(n^2)$ operations. What would be the characteristics of a data science project when algorithm (B) would be preferable?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+**Q5:** Describe whether and how the probability of rain on a given day could be described as a series with the Markov property.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+**Q6:** Describe how representation bias could affect a facial recognition algorithm?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+**Q7:** Describe how algorithmic biases (as described in the reading: <https://www.brookings.edu/research/algorithmic-bias-detection-and-mitigation-best-practices-and-policies-to-reduce-consumer-harms/>) can lead to poor outcomes and one possible approach to mitigating algorithmic bias.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+**Q8:** Calculate the (a) Root Mean Squared Error, (b) Mean Absolute Error, (c) Median Absolute Error, and (d) Max Error for the estimate below. Show the calculation.
+
+| $x_i$ | $\hat{x}_i$ |
+|-------|-------------|
+| 0.11  | 0.1         |
+| 0.33  | 0.3         |
+| 0.45  | 0.5         |
+| 0.73  | 0.7         |
+| 0.8   | 0.9         |
+
+Explain the difference between the error measures and when one might be more useful than another.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+**Q9:** You have a model with a relative root mean squared error of 0.5% on the training set and 5% on the testing set. Explain what this indicates about the overfitting. How might you change your approach to address this?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+
+# Programming Assignment
+
+## Introduction
 
 The Social Vulnerability Index (SoVI) developed by the University of Southern California Hazards, Vulnerability, and Resilience Institute is a metric that "measures the social vulnerability of U.S. counties to environmental hazards."
 
@@ -118,4 +195,5 @@ For each variable, compute the number of missing values, the minimum, and the ma
 **Question 4:** Do the same as the question above, but for the standard deviations.
 
 **Response:** \<YOUR RESPONSE HERE\>
+
 
