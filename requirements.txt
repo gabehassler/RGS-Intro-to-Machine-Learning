@@ -1,5 +1,4 @@
 jupyter
-censusdis
 requests
 pandas
 numpy
