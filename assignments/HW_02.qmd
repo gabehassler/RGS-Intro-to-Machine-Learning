@@ -1,0 +1,29 @@
+---
+title: "HW 01"
+format:
+    html:
+        embed-resources: true
+---
+
+# Intro
+predict life expectancy as a function of tract-level features.
+
+
+Steps:
+1. replace the scripts in 'code' with the new ones from this repo.
+2. delete everything in your 'data' folder
+3. re-run the scripts. This will create a 2015 and 2024 census data.
+4. Write a script 04_download_life_expectanch.py that downloads the following census-tract life expectancy table from https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NVSS/USALEEP/CSV/US_A.CSV. The website for manual download is https://www.cdc.gov/nchs/nvss/usaleep/usaleep.html#life-expectancy.
+5. In the workbook file, do the following
+   1. Import the life exectancy data
+   2. Import the census tract-level data from the previous assigment.
+      1. Based on what you can see on this page, does it make sense to use the most recent (2024) ACS or the 2015 ACS for this task. Why?
+   3. Merge the life expectancy data and census tract data on census tract.
+      1. Are there tracts present in the ACS that are not present in the USALEEP and vice versa? Explain any discrepancies.
+   4. Plot a histogram of the distribution of life expectancies.
+      1. Based on the distribution, do you think mean squared error would be an appropriate error metric for predicting life expectancy? If not, what is a better error metric? Why?
+   5. TODO: figure out what two models they should fit. Do 5-fold cross-validation by randomly assigning individual tracts to the treatment vs. control. What is the average CV error in the training and test sets, respectively, across the 5 folds for both models?
+      1. Which is the preferred model? Why?
+   6. Repeat the process above, but splitting at the state-level rather than tract level (i.e., for each fold, randomly assign 10 states to test and the rest to training).
+      1. Are the results different? Why?
+      2. For this problem, is it better to split randomly on tracts, or states? Why?

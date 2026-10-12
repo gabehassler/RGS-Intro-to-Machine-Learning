@@ -8,8 +8,8 @@ SoVI formula does not require re-downloading. It also filters the raw data
 (which covers every state/territory "acs/acs5" publishes) down to the
 desired scope.
 
-Output: data/processed/sovi_tract.csv, data/processed/sovi_county.csv,
-data/processed/sovi_puma.csv.
+Output, per vintage year in code/census_config.py: data/processed/sovi_tract_<year>.csv,
+data/processed/sovi_county_<year>.csv, data/processed/sovi_puma_<year>.csv.
 """
 
 import sys
@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent))  # find sovi_variables.py when no
 import numpy as np
 import pandas as pd
 
+from census_config import YEARS
 from sovi_variables import OUTPUT_COLUMNS, SOVI_VARIABLES
 
 RAW_DIR = Path("data") / "raw"
@@ -60,26 +61,26 @@ def add_housing_burden(df):
     return df
 
 
-def read_raw(name):
-    df = pd.read_csv(RAW_DIR / name, dtype={"GEOID": str})
+def read_raw(raw_dir, name):
+    df = pd.read_csv(raw_dir / name, dtype={"GEOID": str})
     return df[df["GEOID"].str[:2].isin(STATE_FIPS)].copy()
 
 
-def build_tract():
-    df = read_raw("acs_tract.csv")
+def build_tract(raw_dir):
+    df = read_raw(raw_dir, "acs_tract.csv")
     df = add_sovi_variables(df)
     df = add_housing_burden(df)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS + ["pct_housing_cost_burdened"]]
 
 
-def build_county():
-    df = read_raw("acs_county.csv")
+def build_county(raw_dir):
+    df = read_raw(raw_dir, "acs_county.csv")
     df = add_sovi_variables(df)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS]
 
 
-def build_puma():
-    df = read_raw("acs_puma.csv")
+def build_puma(raw_dir):
+    df = read_raw(raw_dir, "acs_puma.csv")
     df = add_sovi_variables(df)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS]
 
@@ -89,6 +90,8 @@ def save(df, name):
     df.to_csv(OUTPUT_DIR / name, index=False)
 
 
-save(build_tract(), "sovi_tract.csv")
-save(build_county(), "sovi_county.csv")
-save(build_puma(), "sovi_puma.csv")
+for year in YEARS:
+    raw_dir = RAW_DIR / f"census_{year}"
+    save(build_tract(raw_dir), f"sovi_tract_{year}.csv")
+    save(build_county(raw_dir), f"sovi_county_{year}.csv")
+    save(build_puma(raw_dir), f"sovi_puma_{year}.csv")
