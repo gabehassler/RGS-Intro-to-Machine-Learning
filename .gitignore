@@ -7,3 +7,4 @@ data/*
 .env
 **/*.quarto_ipynb
 assignments/**_solution.qmd
+/repos/
