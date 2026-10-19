@@ -18,17 +18,23 @@ import pandas as pd
 import requests
 
 from census_config import DATASET, YEARS
+from sovi_variables import limited_english_table
 
 OUTPUT_DIR = Path("documentation/data_dictionaries")
 
 # Every ACS table referenced by SOVI_VARIABLES / HOUSING_COST_BURDEN_CODES in
-# sovi_variables.py.
+# sovi_variables.py. The limited-English-household table is vintage-dependent
+# (see limited_english_table()) and is added per year in tables_for_year().
 TABLES = [
     "B01001", "B01002", "B02001", "B03003", "B09002", "B11001", "B15003",
     "B17001", "B19001", "B19055", "B19301", "B23001", "B23025",
     "B25001", "B25002", "B25003", "B25024", "B25044", "B25064", "B25070",
-    "B25077", "B25091", "B27001", "C16002", "C24010", "C24030",
+    "B25077", "B25091", "B27001", "C24010", "C24030",
 ]
+
+
+def tables_for_year(year):
+    return TABLES + [limited_english_table(year)]
 
 
 def fetch_table(year, table):
@@ -46,7 +52,7 @@ def fetch_table(year, table):
 
 
 def build_dictionary(year):
-    tables = {table: fetch_table(year, table) for table in TABLES}
+    tables = {table: fetch_table(year, table) for table in tables_for_year(year)}
 
     column_sets = {tuple(df.columns) for df in tables.values()}
     assert len(column_sets) == 1, (
@@ -63,7 +69,7 @@ def main():
         merged = build_dictionary(year)
         merged_path = OUTPUT_DIR / f"acs_variable_dictionary_{year}.csv"
         merged.to_csv(merged_path, index=False)
-        print(f"wrote {merged_path} ({len(merged)} variables across {len(TABLES)} tables)")
+        print(f"wrote {merged_path} ({len(merged)} variables across {len(tables_for_year(year))} tables)")
 
 
 if __name__ == "__main__":

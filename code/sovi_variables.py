@@ -48,10 +48,11 @@ SOVI_VARIABLES = {
     "pct_below_poverty": (["B17001_002E"], ["B17001_001E"], 100),  # QPOVTY
     "pct_high_income_200k": (["B19001_017E"], ["B19001_001E"], 100),  # QRICH
     "per_capita_income": (["B19301_001E"], None, 1),  # PERCAP
-    "pct_limited_english_household": (  # QESL
-        ["C16002_004E", "C16002_007E", "C16002_010E", "C16002_013E"],
-        ["C16002_001E"], 100,
-    ),
+    # pct_limited_english_household (QESL) is not here: its source table's
+    # variable numbering isn't stable across vintages (see
+    # limited_english_codes() below), so it can't use this dict's
+    # fixed-codes-for-every-year pattern. Computed separately in
+    # code/03_build_sovi_variables.py.
     "pct_female": (["B01001_026E"], ["B01001_001E"], 100),  # QFEMALE
     "pct_female_headed_household": (["B11001_006E"], ["B11001_001E"], 100),  # QFHH
     "pct_no_health_insurance": (  # QNOHLTH
@@ -94,6 +95,30 @@ HOUSING_COST_BURDEN_CODES = [
     "B25091_021E", "B25091_022E", "B25091_023E",
 ]
 
+# pct_limited_english_household (QESL) needs "Household Language by Household
+# Limited English Speaking Status" collapsed into 4 language groups (Spanish,
+# other Indo-European, Asian & Pacific Island, other). Before the 2016 ACS5
+# vintage, that collapsed layout WAS table B16002 (vars _001E/_004E/_007E/
+# _010E/_013E). From 2016 on, the Census Bureau expanded B16002 into a
+# 13-group "detailed" table and split the original 4-group layout out into
+# a new table, C16002, with the same variable numbers. So the right table
+# depends on the vintage; using B16002 for a 2016+ year would silently sum
+# the wrong (much narrower) language groups instead of raising an error.
+LIMITED_ENGLISH_CUTOFF_YEAR = 2016
+
+
+def limited_english_table(year):
+    return "C16002" if year >= LIMITED_ENGLISH_CUTOFF_YEAR else "B16002"
+
+
+def limited_english_codes(year):
+    """Numerator and denominator ACS codes for pct_limited_english_household in a given vintage year."""
+    table = limited_english_table(year)
+    numerator = [f"{table}_004E", f"{table}_007E", f"{table}_010E", f"{table}_013E"]
+    denominator = [f"{table}_001E"]
+    return numerator, denominator
+
+
 OUTPUT_COLUMNS = [
     "population",
     "pct_asian", "pct_black", "pct_hispanic", "pct_native_american",
@@ -109,8 +134,9 @@ OUTPUT_COLUMNS = [
 ]
 
 
-def all_acs_codes(extra_codes=()):
-    codes = set(extra_codes)
+def all_acs_codes(year, extra_codes=()):
+    numerator, denominator = limited_english_codes(year)
+    codes = set(extra_codes) | set(numerator) | set(denominator)
     for num_cols, den_cols, _ in SOVI_VARIABLES.values():
         codes.update(num_cols)
         if den_cols:

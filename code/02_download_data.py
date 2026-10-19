@@ -80,7 +80,10 @@ def census_get(year, codes, for_geo, in_geo=None):
     value_columns = [c for c in df.columns if c not in GEO_COLUMN_RENAME.values() and c != "NAME"]
     df[value_columns] = df[value_columns].apply(pd.to_numeric)
     df[value_columns] = df[value_columns].mask(df[value_columns].isin(ACS_SPECIAL_VALUES))
-    return df
+    # Column-by-column dtype conversion above leaves the frame internally
+    # fragmented (one block per column); consolidate before returning so
+    # later column assignments (e.g. GEOID) don't trigger a PerformanceWarning.
+    return df.copy()
 
 
 def all_state_fips(year):
@@ -90,7 +93,7 @@ def all_state_fips(year):
 
 
 def download_tract(year, tract_by_state_dir):
-    codes = all_acs_codes(HOUSING_COST_BURDEN_CODES)
+    codes = all_acs_codes(year, HOUSING_COST_BURDEN_CODES)
     tract_by_state_dir.mkdir(parents=True, exist_ok=True)
     frames = []
     for fips in tqdm(all_state_fips(year), desc=f"Downloading tract-level data ({year})"):
@@ -104,14 +107,14 @@ def download_tract(year, tract_by_state_dir):
 
 
 def download_county(year):
-    codes = all_acs_codes()
+    codes = all_acs_codes(year)
     df = census_get(year, codes, for_geo="county:*", in_geo="state:*")
     df["GEOID"] = df["STATE"] + df["COUNTY"]
     return df[["GEOID", "NAME"] + codes]
 
 
 def download_puma(year):
-    codes = all_acs_codes()
+    codes = all_acs_codes(year)
     df = census_get(year, codes, for_geo="public use microdata area:*", in_geo="state:*")
     df["GEOID"] = df["STATE"] + df["PUBLIC_USE_MICRODATA_AREA"]
     return df[["GEOID", "NAME"] + codes]

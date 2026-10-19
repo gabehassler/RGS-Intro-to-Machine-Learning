@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 
 from census_config import YEARS
-from sovi_variables import OUTPUT_COLUMNS, SOVI_VARIABLES
+from sovi_variables import OUTPUT_COLUMNS, SOVI_VARIABLES, limited_english_codes
 
 RAW_DIR = Path("data") / "raw"
 OUTPUT_DIR = Path("data") / "processed"
@@ -49,6 +49,14 @@ def add_sovi_variables(df):
     return df
 
 
+def add_limited_english(df, year):
+    numer_cols, denom_cols = limited_english_codes(year)
+    numer = df[numer_cols].sum(axis=1)
+    denom = df[denom_cols].sum(axis=1)
+    df["pct_limited_english_household"] = np.where(denom == 0, np.nan, numer / denom * 100)
+    return df
+
+
 def add_housing_burden(df):
     burdened = df[
         ["B25070_009E", "B25070_010E", "B25091_010E", "B25091_011E",
@@ -66,22 +74,25 @@ def read_raw(raw_dir, name):
     return df[df["GEOID"].str[:2].isin(STATE_FIPS)].copy()
 
 
-def build_tract(raw_dir):
+def build_tract(raw_dir, year):
     df = read_raw(raw_dir, "acs_tract.csv")
     df = add_sovi_variables(df)
+    df = add_limited_english(df, year)
     df = add_housing_burden(df)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS + ["pct_housing_cost_burdened"]]
 
 
-def build_county(raw_dir):
+def build_county(raw_dir, year):
     df = read_raw(raw_dir, "acs_county.csv")
     df = add_sovi_variables(df)
+    df = add_limited_english(df, year)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS]
 
 
-def build_puma(raw_dir):
+def build_puma(raw_dir, year):
     df = read_raw(raw_dir, "acs_puma.csv")
     df = add_sovi_variables(df)
+    df = add_limited_english(df, year)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS]
 
 
@@ -92,6 +103,6 @@ def save(df, name):
 
 for year in YEARS:
     raw_dir = RAW_DIR / f"census_{year}"
-    save(build_tract(raw_dir), f"sovi_tract_{year}.csv")
-    save(build_county(raw_dir), f"sovi_county_{year}.csv")
-    save(build_puma(raw_dir), f"sovi_puma_{year}.csv")
+    save(build_tract(raw_dir, year), f"sovi_tract_{year}.csv")
+    save(build_county(raw_dir, year), f"sovi_county_{year}.csv")
+    save(build_puma(raw_dir, year), f"sovi_puma_{year}.csv")

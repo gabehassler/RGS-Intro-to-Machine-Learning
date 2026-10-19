@@ -66,7 +66,7 @@ noted otherwise. "Direct" means the ACS estimate is used as-is.
 | pct_below_poverty | QPOVTY | % below poverty | B17001 | `B17001_002E` | `B17001_001E` | tract, county, PUMA |
 | pct_high_income_200k | QRICH | % households earning $200k+ | B19001 | `B19001_017E` | `B19001_001E` | tract, county, PUMA |
 | per_capita_income | PERCAP | Per capita income | B19301 | `B19301_001E` (direct) | — | tract, county, PUMA |
-| pct_limited_english_household | QESL | % limited-English-speaking households | C16002 | sum of "Limited English speaking household" cells across language groups | `C16002_001E` | tract, county, PUMA |
+| pct_limited_english_household | QESL | % limited-English-speaking households | C16002 (B16002 before the 2016 ACS5 vintage) | sum of "Limited English speaking household" cells across language groups | `C16002_001E` (`B16002_001E` before 2016) | tract, county, PUMA |
 | pct_female | QFEMALE | % female | B01001 | `B01001_026E` | `B01001_001E` | tract, county, PUMA |
 | pct_female_headed_household | QFHH | % female-headed households | B11001 | `B11001_006E` | `B11001_001E` | tract, county, PUMA |
 | pct_no_health_insurance | QNOHLTH | % without health insurance | B27001 | sum of "No health insurance coverage" cells across all sex/age bins | `B27001_001E` | tract, county, PUMA |
