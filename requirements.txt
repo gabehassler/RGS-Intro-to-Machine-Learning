@@ -4,3 +4,5 @@ pandas
 numpy
 tqdm
 python-dotenv
+truststore
+scikit-learn

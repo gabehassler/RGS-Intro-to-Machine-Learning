@@ -1,29 +1,113 @@
 ---
-title: "HW 01"
+title: "HW 02"
 format:
     html:
         embed-resources: true
 ---
 
-# Intro
-predict life expectancy as a function of tract-level features.
+## Deadline and Submission Instructions
+
+This assignment is due on **Monday, October 26** before the start of class (8:30am PT / 11:30am ET). Submit via GitHub using the same procedure as HW_01 (see the README of this repository).
+
+# Introduction
+
+This assignment corresponds to Week 3 of the course, "Evaluation" (error measures, training/testing, cross-validation). You will build on the tract-level American Community Survey (ACS) data from HW_01 by merging it with a life expectancy dataset and using it to predict tract-level life expectancy. Along the way, you will pick an appropriate error metric for the outcome's distribution, and see how the same model's estimated accuracy, and whether adding geography to it looks like a good idea, can change depending on how you cross-validate.
+
+The life expectancy data comes from the CDC's U.S. Small-area Life Expectancy Estimates Project (USALEEP), which estimates life expectancy at birth for individual census tracts from 2010-2015 mortality and population data. This fills a real gap: the federal government doesn't otherwise publish life expectancy below the county level, even though health outcomes can vary enormously from one tract to the next within the same county.
+
+The regression itself is simple: each row is a census tract, the outcome is that tract's USALEEP life expectancy, and the predictors are the SoVI variables you built in HW_01 (poverty, health insurance coverage, income, education, and so on), plus, in Part 3 onward, a set of terms built from the tract's latitude and longitude. You're asking how much of a tract's life expectancy can be predicted from its socioeconomic profile (and location) alone, and how much you can trust your predictions.
+
+## Preliminary Work
+
+The steps below are preliminary work you will need to complete before you can complete the actual assignment. You do not need to document them in your HW_02 notebook.
+
+### Step 1: Update your data pipeline
+
+1. Copy the updated scripts from the `code` directory of this repository into your own repository, replacing your HW_01 versions and adding the two new ones (`01_build_data_dictionaries.py`, `02_download_data.py`, `03_build_sovi_variables.py`, `04_download_life_expectancy.py`, `05_merge_data.py`, `sovi_variables.py`, `census_config.py`, `run_all.sh`).
+2. Delete everything in your local `data` folder. The output schema has changed, so you need a clean rebuild.
+3. Re-run the scripts in order (or run `bash code/run_all.sh`). This will produce, among other files, `data/processed/sovi_tract_2024.csv`, `data/processed/sovi_tract_2015.csv`, and `data/processed/sovi_tract_2015_merged.csv`.
+
+What the two new scripts do:
+
+- **`04_download_life_expectancy.py`** downloads the census-tract-level life expectancy file from <https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NVSS/USALEEP/CSV/US_A.CSV> and saves it to `data/raw/`. This is the U.S. Small-area Life Expectancy Estimates Project (USALEEP); see <https://www.cdc.gov/nchs/nvss/usaleep/usaleep.html#life-expectancy> for background on how and when the estimates were produced.
+- **`05_merge_data.py`** merges the **2015** tract-level SoVI data (not 2024: USALEEP's estimates are based on 2010-2015 mortality and population data using 2010 Census tract boundaries, the same vintage as the 2015 ACS data, while the 2024 ACS data uses the 2020 Census's redrawn boundaries) with the life expectancy data and each tract's centroid coordinates from the Census Gazetteer file, and builds a small set of polynomial terms from those coordinates. It produces `data/processed/sovi_tract_2015_merged.csv`, containing every SoVI variable, `life_expectancy`, and five geography columns (`geo_lat`, `geo_lon`, `geo_lat2`, `geo_lat_lon`, `geo_lon2`) for every 2015 tract. Tracts with no USALEEP estimate have a missing `life_expectancy` value rather than being dropped. You do not need to write any of this merging or feature-construction code yourself.
+
+## Assignment
+
+Create a new notebook file with header "HW_02" in the `assignments` directory of your repository. You will complete the following work in this notebook. All code should be in code blocks, while questions requiring explanations should be written in standard Markdown.
+
+### Part 1: Load the Data
+
+Load `data/processed/sovi_tract_2015_merged.csv`, produced in Step 1 above. This single file already combines the 2015 tract-level SoVI variables, life expectancy, and the geography terms you'll use later in Part 3.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 1:** Are there tracts present in the SoVI data that are not present in the USALEEP data, or vice versa? How many? Give at least one possible explanation for any discrepancy. (Hint: a tract with no USALEEP estimate will show up as a missing value in `life_expectancy`.)
+
+**Response:** \<YOUR RESPONSE HERE\>
 
 
-Steps:
-1. replace the scripts in 'code' with the new ones from this repo.
-2. delete everything in your 'data' folder
-3. re-run the scripts. This will create a 2015 and 2024 census data.
-4. Write a script 04_download_life_expectanch.py that downloads the following census-tract life expectancy table from https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/NVSS/USALEEP/CSV/US_A.CSV. The website for manual download is https://www.cdc.gov/nchs/nvss/usaleep/usaleep.html#life-expectancy.
-5. In the workbook file, do the following
-   1. Import the life exectancy data
-   2. Import the census tract-level data from the previous assigment.
-      1. Based on what you can see on this page, does it make sense to use the most recent (2024) ACS or the 2015 ACS for this task. Why?
-   3. Merge the life expectancy data and census tract data on census tract.
-      1. Are there tracts present in the ACS that are not present in the USALEEP and vice versa? Explain any discrepancies.
-   4. Plot a histogram of the distribution of life expectancies.
-      1. Based on the distribution, do you think mean squared error would be an appropriate error metric for predicting life expectancy? If not, what is a better error metric? Why?
-   5. TODO: figure out what two models they should fit. Do 5-fold cross-validation by randomly assigning individual tracts to the treatment vs. control. What is the average CV error in the training and test sets, respectively, across the 5 folds for both models?
-      1. Which is the preferred model? Why?
-   6. Repeat the process above, but splitting at the state-level rather than tract level (i.e., for each fold, randomly assign 10 states to test and the rest to training).
-      1. Are the results different? Why?
-      2. For this problem, is it better to split randomly on tracts, or states? Why?
+### Part 2: Explore the Outcome
+
+1. Drop tracts with a missing `life_expectancy` value, or a missing value in any SoVI variable; use the remaining tracts for the rest of the assignment. Plot a histogram of the distribution of life expectancy across these tracts.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 2:** Based on the distribution, do you think mean squared error (MSE) would be an appropriate error metric for evaluating a model that predicts life expectancy? If not, what would be a better metric, and why? Use the metric you settle on for the rest of this assignment.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+### Part 3: Fit and Cross-Validate Two Models
+
+Fit two linear regression models that predict tract-level life expectancy:
+
+- **SoVI only:** uses every SoVI variable in your merged dataset as predictors.
+- **SoVI + Geography:** every SoVI variable, plus the five geography columns (`geo_lat`, `geo_lon`, `geo_lat2`, `geo_lat_lon`, `geo_lon2`).
+
+1. Perform 5-fold cross-validation by randomly assigning individual *tracts* to one of 5 folds. For each model, report the average training error and average test error (using the metric from Question 2) across the 5 folds.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 3:** Based on this tract-level cross-validation, which model is preferred? Why?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+### Part 4: Repeat with State-Level Splits
+
+1. Repeat the comparison from Part 3, but using **leave-one-state-out** cross-validation instead of random tract-level folds: hold out one state at a time (DC counts as a state-equivalent unit), train on the other 50, and predict the held-out state's tracts. Repeat for all 51 states, and average the training and test errors across all 51 folds, for both models.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 4:** How do these results compare to the tract-level split results from Part 3? Describe what changed.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 5:** For this problem, is it better to cross-validate by randomly splitting on tracts, or by holding out one state at a time? Why? (Hint: think about what tracts within the same state have in common with each other that tracts in different states don't, and what a "held-out" test set is supposed to represent.)
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 6:** Which model does tract-level CV (Part 3) prefer? Which model does leave-one-state-out CV prefer? Are they the same?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 7:** Compute the leave-one-state-out test error for SoVI + Geography separately for each state (rather than averaged across all 51). Which state(s) have the worst error under this model? What do those states have in common? Use this to explain your answer to Question 6.
+
+**Response:** \<YOUR RESPONSE HERE\>
