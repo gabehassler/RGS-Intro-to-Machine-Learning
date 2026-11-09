@@ -6,3 +6,6 @@ tqdm
 python-dotenv
 truststore
 scikit-learn
+matplotlib
+plotly
+statsmodels
