@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 
 from census_config import YEARS
-from sovi_variables import OUTPUT_COLUMNS, SOVI_VARIABLES, limited_english_codes
+from sovi_variables import HOUSING_COST_BURDEN_CODES, OUTPUT_COLUMNS, SOVI_VARIABLES, limited_english_codes
 
 RAW_DIR = Path("data") / "raw"
 OUTPUT_DIR = Path("data") / "processed"
@@ -38,35 +38,55 @@ STATE_FIPS = [
 ]
 
 
+def sum_codes(df, cols):
+    # A plain .sum() skips NaN, so a row whose inputs are all missing (e.g. a
+    # suppressed median) would come out as 0. min_count makes the sum missing
+    # if any input is missing.
+    return df[cols].sum(axis=1, min_count=len(cols))
+
+
 def add_sovi_variables(df):
     for name, (num_cols, den_cols, mult) in SOVI_VARIABLES.items():
-        numer = df[num_cols].sum(axis=1)
+        numer = sum_codes(df, num_cols)
         if den_cols is None:
             df[name] = numer
         else:
-            denom = df[den_cols].sum(axis=1)
+            denom = sum_codes(df, den_cols)
             df[name] = np.where(denom == 0, np.nan, numer / denom * mult)
     return df
 
 
 def add_limited_english(df, year):
     numer_cols, denom_cols = limited_english_codes(year)
-    numer = df[numer_cols].sum(axis=1)
-    denom = df[denom_cols].sum(axis=1)
+    numer = sum_codes(df, numer_cols)
+    denom = sum_codes(df, denom_cols)
     df["pct_limited_english_household"] = np.where(denom == 0, np.nan, numer / denom * 100)
     return df
 
 
 def add_housing_burden(df):
-    burdened = df[
-        ["B25070_009E", "B25070_010E", "B25091_010E", "B25091_011E",
-         "B25091_021E", "B25091_022E"]
-    ].sum(axis=1)
+    burdened = sum_codes(df, [
+        "B25070_009E", "B25070_010E", "B25091_010E", "B25091_011E",
+        "B25091_021E", "B25091_022E",
+    ])
     renter_specified = df["B25070_001E"] - df["B25070_011E"]
     owner_specified = df["B25091_001E"] - df["B25091_012E"] - df["B25091_023E"]
     denom = renter_specified + owner_specified
     df["pct_housing_cost_burdened"] = np.where(denom == 0, np.nan, burdened / denom * 100)
     return df
+
+
+def check_missing_inputs_stay_missing(df, year):
+    """Fail if any variable has a value in a row where one of its ACS inputs is
+    missing, i.e. a suppressed estimate was silently turned into a number."""
+    inputs = {name: num_cols + (den_cols or []) for name, (num_cols, den_cols, _) in SOVI_VARIABLES.items()}
+    inputs["pct_limited_english_household"] = sum(limited_english_codes(year), [])
+    inputs["pct_housing_cost_burdened"] = HOUSING_COST_BURDEN_CODES
+    for name, codes in inputs.items():
+        if name not in df.columns:  # housing burden is tract-only
+            continue
+        n_bad = (df[codes].isna().any(axis=1) & df[name].notna()).sum()
+        assert n_bad == 0, f"{n_bad} rows have a {name} value despite a missing ACS input"
 
 
 def read_raw(raw_dir, name):
@@ -79,6 +99,7 @@ def build_tract(raw_dir, year):
     df = add_sovi_variables(df)
     df = add_limited_english(df, year)
     df = add_housing_burden(df)
+    check_missing_inputs_stay_missing(df, year)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS + ["pct_housing_cost_burdened"]]
 
 
@@ -86,6 +107,7 @@ def build_county(raw_dir, year):
     df = read_raw(raw_dir, "acs_county.csv")
     df = add_sovi_variables(df)
     df = add_limited_english(df, year)
+    check_missing_inputs_stay_missing(df, year)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS]
 
 
@@ -93,6 +115,7 @@ def build_puma(raw_dir, year):
     df = read_raw(raw_dir, "acs_puma.csv")
     df = add_sovi_variables(df)
     df = add_limited_english(df, year)
+    check_missing_inputs_stay_missing(df, year)
     return df[["GEOID", "NAME"] + OUTPUT_COLUMNS]
 
 
