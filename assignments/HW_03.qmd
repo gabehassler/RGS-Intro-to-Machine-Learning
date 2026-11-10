@@ -1,0 +1,134 @@
+---
+title: "HW 03"
+format:
+    html:
+        embed-resources: true
+---
+
+## Deadline and Submission Instructions
+
+This assignment is due on **Monday, November 16** before the start of class (8:30am PT / 11:30am ET). Submit via GitHub using the same procedure as previous assignments (see the README of this repository).
+
+# Introduction
+
+For this assignment, you will reuse the tract-level SoVI variables from HW_02 (`data/processed/sovi_tract_2015_merged.csv`; no new data pipeline work is required) to predict tract-level life expectancy, but this time with a regression tree instead of linear regression. This assignment does not use the geography columns (`geo_lat`, `geo_lon`, etc.) at all -- every model below uses the SoVI variables only.
+
+A single regression tree can fit the training data almost perfectly if you let it grow deep enough, which makes it a different kind of overfitting risk than the linear models from HW_02. You will watch a tree overfit, then use cross-validation with random tract-level folds (same mechanic as HW_02 Part 3) to tune the tree's depth, compare the tuned tree back to linear regression, and finally see how much simpler a tree can be when the question it's answering is simpler too.
+
+## Assignment
+
+Create a new notebook file with header "HW_04" in the `assignments` directory of your repository. You will complete the following work in this notebook. All code should be in code blocks, while questions requiring explanations should be written in standard Markdown.
+
+### Part 1: Load and Prepare the Data
+
+Load `data/processed/sovi_tract_2015_merged.csv` (the same merged dataset from HW_02). Drop any tract with a missing `life_expectancy` value or a missing value in any SoVI variable, exactly as you did in HW_02 Part 2.
+
+```{python}
+
+# your code here
+
+```
+
+### Part 2: Fit a Single Regression Tree and Watch It Overfit
+
+1. Split the tracts once into a training set and a test set (e.g., an 80/20 random tract-level split). Use a fixed random seed so your split is reproducible.
+2. Fit an **unconstrained** regression tree (e.g., scikit-learn's `DecisionTreeRegressor` with no `max_depth` limit) using every SoVI variable to predict `life_expectancy` on the training set.
+3. Report the training error and the test error (using MSE), along with the fitted tree's depth and number of leaves.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 1:** How does the training error compare to the test error? What does the gap between them tell you about this tree's complexity relative to the amount of data available?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+### Part 3: Tune `max_depth` via Cross-Validation
+
+A regression tree's complexity is controlled by more than one hyperparameter, but to keep things simple here, fix `min_samples_leaf=50` and tune only `max_depth`.
+
+1. For a range of `max_depth` values (e.g., 1 through 15), perform 5-fold cross-validation with random tract-level folds (same fold assignment every time), keeping `min_samples_leaf=50`. For each depth, record the average training MSE and average test MSE across the 5 folds.
+2. Plot the average training MSE and average test MSE against `max_depth` on the same axes.
+3. Select the depth with the lowest average test MSE. Report that depth's tree: depth, leaf count, training MSE, and test MSE.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 2:** Describe the shape of the training and test MSE curves across depth. At roughly what depth is test MSE minimized? How does this relate to the overfitting you saw in Part 2?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+### Part 4: Compare to Linear Regression, and Assess Interpretability
+
+1. Fit a linear regression on the same SoVI variables, and evaluate it with the same 5-fold, random tract-level CV test MSE you used for the trees above.
+2. Gather the CV test MSE for all three models you've now fit on this data: the unconstrained tree (Part 2), your tuned tree (Part 3), and this linear regression.
+
+
+```{python}
+
+# your code here
+
+```
+
+**Question 3:** Which of the three models has the lowest cross-validated test MSE?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 4:** Is your "optimal" tree from step 3 interpretable? Look at its depth and number of leaves: could you draw its full set of decision rules, or walk someone through them, the way you could write out a linear regression's coefficients? If it isn't interpretable as-is, is there a smaller, shallower tree you could use instead to make interpretability versus accuracy an explicit tradeoff?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+
+### Part 5: A Simpler Problem -- Classifying the Bottom 10%
+
+Not every question needs a precise numeric prediction. Suppose you only cared about flagging the worst-off tracts, rather than predicting each tract's exact life expectancy.
+
+1. Create a binary outcome equal to 1 for tracts whose `life_expectancy` falls below the 10th percentile among the tracts used in this assignment, and 0 otherwise.
+2. Using the same SoVI variables and the same random tract-level folds, cross-validate a **classification** tree (e.g., scikit-learn's `DecisionTreeClassifier`) over a wide enough range of `max_depth` values (e.g., 1 through 15) to see where additional depth stops helping. For each depth, report accuracy, the resulting tree's average number of leaves, and the area under the ROC curve (AUC). Use AUC, not accuracy, as your selection statistic: since about 90% of tracts aren't in the bottom 10%, a model that always predicts "not bottom 10%" already gets about 90% accuracy without having learned anything, but AUC measures how well the tree *ranks* tracts by predicted risk, independent of any particular decision threshold, so it isn't fooled by the class imbalance the same way. Compute it from each tract's predicted probability of being bottom-10%, not from the tree's hard class predictions.
+3. Select the depth with the highest average AUC. Report that depth's tree (depth, leaf count, accuracy, and AUC). Call this your "optimal" tree for this part.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 5:** How does this classification tree's depth and leaf count compare to the regression trees from earlier parts? Is it meaningfully simpler?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 6:** Is this simpler tree interpretable? If so, briefly describe it -- which variables show up near the top of the tree, and what do the splits near the top look like?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 7:** Why might predicting a binary outcome ("is this tract in the bottom 10%?") require a much simpler model than predicting the exact continuous life expectancy value? What does this suggest about matching model complexity to the specific question you're trying to answer, rather than just to the dataset you happen to have?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+1. Now fit a deliberately **small** tree: at most 10 leaves (e.g., scikit-learn's `max_leaf_nodes=10`), cross-validated the same way (5-fold, same random tract folds). Report its average AUC and leaf count.
+2. Compare this small tree's cross-validated AUC to your "optimal" tree's AUC from step 3.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 8:** How much AUC do you give up by using the 10-leaf tree instead of the "optimal" tree? Is that tradeoff worth it, in your judgment?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 9:** Fit the small tree on the full dataset and look at (or print out) its actual splits. Interpret it: walk through its rules in a sentence or two, as if you were explaining to a policymaker which tracts the tree flags as bottom-10% and why.
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 10:** When would you reach for the small, 10-leaf tree instead of the larger "optimal" tree, and when would you reach for the "optimal" tree instead? What is each one for?
+
+**Response:** \<YOUR RESPONSE HERE\>
