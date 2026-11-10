@@ -8,3 +8,4 @@ data/*
 **/*.quarto_ipynb
 assignments/**_solution.qmd
 /repos/
+/admin/
