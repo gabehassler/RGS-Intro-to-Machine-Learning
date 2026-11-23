@@ -9,3 +9,8 @@ scikit-learn
 matplotlib
 plotly
 statsmodels
+xgboost
+lightgbm
+pygam
+interpret-core[required]
+optuna
