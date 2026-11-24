@@ -1,0 +1,129 @@
+---
+title: "HW 04"
+format:
+    html:
+        embed-resources: true
+---
+
+## Deadline and Submission Instructions
+
+This assignment is due on **[DATE TBD]** before the start of class (8:30am PT / 11:30am ET). Submit via GitHub using the same procedure as previous assignments (see the README of this repository).
+
+# Introduction
+
+Two things happened separately in class so far: `Life_expectancy_prediction_models.ipynb` fit a wide range of models to the tract-level life expectancy data, each with a single fixed, "reasonable" hyperparameter setting -- none of them tuned. `Hyperparameter tuning.ipynb` showed *how* to tune a model's hyperparameters properly: grid search, random search, and Bayesian optimization (Optuna), evaluated with cross-validation rather than a single lucky train/test split.
+
+This assignment puts those two pieces together. You will pick two models from the first demo -- one **interpretable** and one **black box** -- figure out which hyperparameters each one actually has and which of those are worth tuning for this dataset, tune both properly, and compare what you get.
+
+This assignment reuses the merged tract-level dataset from both demos (`data/processed/sovi_tract_2015_merged.csv`: the 28 SoVI predictors plus `life_expectancy`, built in HW_02). No new data pipeline work is required, and the geography columns (`geo_*`) are excluded, exactly as in the demos.
+
+## Picking Your Two Models
+
+Choose two models to fit to this data: one must be **interpretable** and the other must be a **black box**.
+You can look to `Life_expectancy_prediction_models.ipynb` for options, but are welcome to choose any machine learning or statistics model that you like.
+
+For example:
+
+- **Interpretable**: OLS, LASSO, Ridge, Elastic Net, a GAM, an Explainable Boosting Machine, or a shallow CART.
+- **Black box**: Random Forest, XGBoost, LightGBM, a neural net (MLP), K-nearest neighbors, or a Gaussian Process.
+
+State which two models you picked and, in a sentence or two each, why you're calling one interpretable and the other a black box. You don't need to pick the two best-performing models from the demo -- pick two you're interested in comparing.
+
+## Assignment
+
+Create a new notebook file with header "HW_04" in the `assignments` directory of your repository. You will complete the following work in this notebook. All code should be in code blocks, while questions requiring explanations should be written in standard Markdown.
+
+### Part 1: Load the Data and Build a Shared CV Framework
+
+Both models in this assignment must be tuned and compared under *exactly* the same resampling scheme, so you only build this once and reuse it everywhere below.
+
+1. Load `data/processed/sovi_tract_2015_merged.csv` and drop any tract with a missing value in a SoVI variable or in `life_expectancy`, exactly as in the demos.
+2. Split the tracts **once**, at random, into a 33% test holdout and a 67% training set. Use a fixed random seed. Set the test holdout aside -- it is not touched again until Part 4.
+3. On the 67% training set only, assign random 5-fold tract-level CV folds (same mechanic as the demos and earlier homeworks), again with a fixed seed. Store this fold assignment so it can be reused identically for both models in Part 3.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 1:** Why does comparing two tuned models fairly require using the *same* CV folds for both, rather than letting each model use its own random folds?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+### Part 2: Research Each Model's Hyperparameters
+
+For **each** of your two models:
+
+1. Look up the model's hyperparameters (*Hint*: the documentation associated with the code that fits the model usually lists all the hyperparameters that you can tune. See [XGBoost](https://xgboost.readthedocs.io/en/stable/parameter.html) for an example).
+2. From that list, identify the ones that are typically the ones worth tuning for a dataset of this size and shape (tens of thousands of rows, 28 numeric predictors, a continuous target).
+
+
+**Question 2:** For your interpretable model, which hyperparameters did you choose to tune, why?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 3:** For your black-box model, which hyperparameters did you choose to tune, why?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+### Part 3: Tune Both Models on the Training Data
+
+Using **only** the 67% training set and the 5-fold CV folds from Part 1 -- identical folds for both models:
+
+1. Tune the hyperparameters you identified in Part 2 for your interpretable model. Use grid search, random search, or Optuna (see `Hyperparameter tuning.ipynb` for examples of each); state which you used and why it was a reasonable choice given how many hyperparameters you're tuning.
+2. Do the same for your black-box model.
+3. For each model, report the hyperparameter values you landed on, the corresponding average CV test MSE (or RMSE) at that setting, and the standard deviation of that MSE across the 5 folds -- a measure of how much your performance estimate would likely move had the folds been drawn differently.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 4:** How much did tuning improve each model's CV test error relative to a "reasonable" untuned default (e.g., the setting used for that model in `Life_expectancy_prediction_models.ipynb`, if it's the same model)? Was the improvement similar in size for both models, or did one benefit from tuning much more than the other?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 5:** How variable is each model's CV test MSE across the 5 folds? Is one model's performance estimate noticeably more variable (less certain) than the other's, and if so, why might that be?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+### Part 4: Evaluate Both Tuned Models on the Held-Out Test Set
+
+1. Refit each model, using its tuned hyperparameters from Part 3, on the **full** 67% training set.
+2. Evaluate both refit models -- for the first time -- on the untouched 33% test holdout from Part 1. Report RMSE, MAE, and R² for each.
+3. Compare each model's test-set performance to its own CV performance from Part 3, including the fold-to-fold variance you reported there -- a single holdout number doesn't come with its own variance estimate, so that CV variance is your best stand-in for "how much would this test score plausibly move around."
+
+```{python}
+
+# your code here
+
+```
+
+**Question 6:** Which of your two models has better test-set performance? Is the gap large enough that you'd confidently recommend one over the other on accuracy alone, or is it close enough that other considerations (interpretability, fitting time, stability) should break the tie?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 7:** Did either model's test-set error come in noticeably higher or lower than its CV test error from Part 3? If so, what's a plausible explanation?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+### Part 5: Weigh Accuracy Against Interpretability
+
+1. For your interpretable model, produce whatever native explanation it offers (coefficients, partial dependence / shape functions, a plotted tree, etc. -- whatever's appropriate for the model you picked) and briefly interpret it: which predictors matter most, and in which direction?
+2. For your black-box model, produce an appropriate variable importance explanation instead (e.g., permutation importance), and compare which predictors it flags as important to what your interpretable model found.
+
+```{python}
+
+# your code here
+
+```
+
+**Question 8:** Do the two models agree on which predictors matter most? Where they disagree?
+
+**Response:** \<YOUR RESPONSE HERE\>
+
+**Question 9:** Given everything above -- test performance and its uncertainty, how much tuning helped, and interpretability -- which of your two models would you actually recommend for this task, and to whom? (Your answer can reasonably depend on the audience: a policymaker who needs to defend a decision may have different needs than an analyst who just wants the best prediction.)
+
+**Response:** \<YOUR RESPONSE HERE\>
