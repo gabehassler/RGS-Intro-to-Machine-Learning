@@ -7,7 +7,7 @@ format:
 
 ## Deadline and Submission Instructions
 
-This assignment is due on **[DATE TBD]** before the start of class (8:30am PT / 11:30am ET). Submit via GitHub using the same procedure as previous assignments (see the README of this repository).
+This assignment is due on **Wednesday, December 2** before the start of class (8:30am PT / 11:30am ET). Submit via GitHub using the same procedure as previous assignments (see the README of this repository).
 
 # Introduction
 
